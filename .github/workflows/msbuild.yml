@@ -1,32 +1,33 @@
-name: MSBuild
+name: Main workflow
 
 on: [push]
 
-env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
-
 jobs:
   build:
-    runs-on: windows-latest
-
+    runs-on: windows-2016        
     steps:
-    - uses: actions/checkout@v2
-    - name: install vcexpress2010
-      run: choco install vcexpress2010
-    - name: set vcexpress2010
-      run: call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" x86
+     - uses: actions/checkout@v2
+     - uses: microsoft/setup-msbuild@v1
+       
+     - name: Install vcexpress2010
+       run: choco install vcexpress2010
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: cd libfaac && msbuild libfaac_drm.sln
+     - name:  Setup Environment
+       run:   |
+             echo "{C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE}" >> $GITHUB_PATH
+             echo "{C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\BIN}" >> $GITHUB_PATH
+             echo "{C:\Windows\Microsoft.NET\Framework\v4.0.30319}" >> $GITHUB_PATH
+             echo "{LIB}={C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\LIB;%LIB%}" >> $LIB
+             echo "{LIB}={C:\Program Files (x86)\Microsoft SDKs\Windows\v6.0A\Lib;%LIB%}" >> $LIB
+             echo "{LIB}={C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib;%LIB%}" >> $LIB
+             echo "{INCLUDE}={C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include;%INCLUDE%}" >> $INCLUDE
+          
+     - name:  Start VCTools
+       run: call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" x86
+       shell: cmd
+       
+     - name: Build
+       working-directory: ${{env.GITHUB_WORKSPACE}}
+       # Add additional options to the MSBuild command line here (like platform or verbosity level).
+       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+       run: cd libfaac && msbuild libfaac_drm.sln
