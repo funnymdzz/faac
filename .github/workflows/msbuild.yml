@@ -30,4 +30,6 @@ jobs:
        working-directory: ${{env.GITHUB_WORKSPACE}}
        # Add additional options to the MSBuild command line here (like platform or verbosity level).
        # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-       run: cd libfaac && msbuild libfaac_drm.sln
+       run:   |
+             msbuild libfaac/libfaac_drm.vcpro
+       shell: cmd
